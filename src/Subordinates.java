@@ -1,37 +1,54 @@
+import java.io.*;
 import java.util.*;
 
 public class Subordinates {
-    static List<Integer>[] tree;
-    static int[] subordinates;
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int n = Integer.parseInt(br.readLine());
 
-    static void dfs(int node) {
-        subordinates[node] = 0;
+        int[] parent = new int[n + 1];
+        int[] childCount = new int[n + 1];
+        int[] sub = new int[n + 1];
 
-        for (int child : tree[node]) {
-            dfs(child);
-            subordinates[node] += 1 + subordinates[child];
-        }
-    }
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-
-        int n = sc.nextInt();
-
-        tree = new ArrayList[n + 1];
-        subordinates = new int[n + 1];
-
-        for (int i = 1; i <= n; i++)
-            tree[i] = new ArrayList<>();
-
+        // Leer padres
         for (int i = 2; i <= n; i++) {
-            int boss = sc.nextInt();
-            tree[boss].add(i);
+            parent[i] = Integer.parseInt(st.nextToken());
+            childCount[parent[i]]++; // contar hijos
         }
 
-        dfs(1); // root
+        // Cola para nodos listos (hojas)
+        Deque<Integer> queue = new ArrayDeque<>();
 
-        for (int i = 1; i <= n; i++)
-            System.out.print(subordinates[i] + " ");
+        // Inicializar con hojas
+        for (int i = 1; i <= n; i++) {
+            if (childCount[i] == 0) {
+                queue.add(i);
+            }
+        }
+
+        // Procesamiento tipo topológico
+        while (!queue.isEmpty()) {
+            int u = queue.poll();
+
+            int p = parent[u];
+            if (p != 0) { // 1 no tiene padre
+                sub[p] += 1 + sub[u];
+                childCount[p]--;
+
+                if (childCount[p] == 0) {
+                    queue.add(p);
+                }
+            }
+        }
+
+        // Output
+        StringBuilder out = new StringBuilder();
+        for (int i = 1; i <= n; i++) {
+            out.append(sub[i]).append(" ");
+        }
+
+        System.out.println(out);
     }
 }
